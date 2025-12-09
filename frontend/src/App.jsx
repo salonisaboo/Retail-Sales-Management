@@ -89,7 +89,7 @@ function App() {
       <aside className="sidebar">
         <div className="sidebar-header">
           <div className="sidebar-logo">Vault</div>
-          <div className="sidebar-user">Anurag Yadav ▾</div>
+          <div className="sidebar-user">Saloni Saboo ▾</div>
         </div>
 
         <nav className="sidebar-nav">
@@ -153,7 +153,7 @@ function App() {
           <SearchBar value={search} onChange={setSearch} />
         </header>
 
-        {/* Filters row – all in one line with horizontal scroll if overflow */}
+        {/* Filters row */}
         <section className="filters-row">
           <div className="filters-bar-wrapper">
             <FiltersBar
