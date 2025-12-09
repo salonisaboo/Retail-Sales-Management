@@ -19,8 +19,8 @@ export default function TransactionsTable({ rows }) {
                 </tr>
             </thead>
             <tbody>
-                {rows.map((row) => (
-                    <tr key={row._id}>
+                {rows.map((row, idx) => (
+                    <tr key={row._id || idx}>
                         <td>{row["Transaction ID"]}</td>
                         <td>{row["Date"] ? String(row["Date"]).substring(0, 10) : ""}</td>
                         <td>{row["Customer ID"]}</td>
@@ -30,7 +30,7 @@ export default function TransactionsTable({ rows }) {
                         <td>{row["Age"]}</td>
                         <td>{row["Product Category"]}</td>
                         <td>{row["Quantity"]}</td>
-                        <td>{row["Total Amount"]}</td>
+                        <td>₹{Number(row["Total Amount"]).toLocaleString("en-IN")}</td>
                         <td>{row["Customer Region"]}</td>
                         <td>{row["Product ID"]}</td>
                         <td>{row["Employee Name"]}</td>

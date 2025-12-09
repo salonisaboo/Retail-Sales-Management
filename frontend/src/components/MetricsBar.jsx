@@ -9,17 +9,15 @@ export default function MetricsBar({ metrics }) {
                 <div className="metric-title">Total units sold</div>
                 <div className="metric-value">{totalUnits}</div>
             </div>
-
             <div className="metric-card">
                 <div className="metric-title">Total Amount</div>
                 <div className="metric-value">
                     ₹{Number(totalAmount).toLocaleString("en-IN")}
                 </div>
             </div>
-
             <div className="metric-card">
                 <div className="metric-title">Total Discount</div>
-                <div className="metric-value">{totalDiscount}</div>
+                <div className="metric-value">₹{Number(totalDiscount).toLocaleString("en-IN")}</div>
             </div>
         </div>
     );

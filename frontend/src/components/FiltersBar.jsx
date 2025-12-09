@@ -1,32 +1,31 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
-const regions = ["North", "South", "East", "West"];
-const genders = ["Male", "Female"];
-const categories = ["Clothing", "Electronics", "Beauty", "Accessories"];
-const payments = ["UPI", "Cash", "Debit Card", "Credit Card"];
-const tagOptions = ["fragrance", "gift", "skincare", "organic", "electronics"];
+const REGION_OPTIONS = ["North", "South", "East", "West", "Central"];
+const GENDER_OPTIONS = ["Male", "Female"];
+const CATEGORY_OPTIONS = ["Clothing", "Electronics", "Beauty", "Home", "Sports"];
+const TAG_OPTIONS = ["fragrance", "gift", "skincare", "wireless", "fashion"];
+const PAYMENT_OPTIONS = ["UPI", "Cash", "Debit Card", "Credit Card", "Wallet"];
 
-// Age & Date dropdown presets (range based)
-const ageRangeOptions = [
-    { label: "Age Range", value: "" },
-    { label: "18 – 25", value: "18-25" },
-    { label: "26 – 35", value: "26-35" },
-    { label: "36 – 45", value: "36-45" },
-    { label: "46 – 60", value: "46-60" },
+const AGE_RANGE_OPTIONS = [
+    { label: "18–25", value: "18-25" },
+    { label: "26–35", value: "26-35" },
+    { label: "36–45", value: "36-45" },
+    { label: "46–60", value: "46-60" },
     { label: "60+", value: "60-120" }
 ];
 
-const dateOptions = [
-    { label: "Date", value: "" },
+const DATE_OPTIONS = [
+    { label: "Today", value: "today" },
     { label: "Last 7 days", value: "last7" },
     { label: "Last 30 days", value: "last30" },
     { label: "Last 6 months", value: "last180" },
     { label: "Last 1 year", value: "last365" }
 ];
 
-// ───────────────────────────── Multi-select pill dropdown ─────────────────────────────
-function MultiSelectDropdown({ label, options, values, onChange, minWidth }) {
+// Multi-select dropdown for region / gender / category / tags / payment
+function MultiSelectDropdown({ label, options, values = [], onChange, minWidth }) {
     const [open, setOpen] = useState(false);
+    const wrapperRef = useRef(null);
 
     const toggleOption = (value) => {
         if (values.includes(value)) {
@@ -36,27 +35,38 @@ function MultiSelectDropdown({ label, options, values, onChange, minWidth }) {
         }
     };
 
+    const handleTriggerClick = () => {
+        setOpen((o) => !o);
+    };
+
+    // Click outside to close
     useEffect(() => {
-        const close = () => setOpen(false);
-        window.addEventListener("click", close);
-        return () => window.removeEventListener("click", close);
+        const handleClickOutside = (event) => {
+            if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+                setOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    const displayText = values.length > 0
+        ? values.length === 1
+            ? values[0]
+            : `${values[0]} +${values.length - 1}`
+        : label;
+
     return (
-        <div
-            className="multi-select"
-            style={{ minWidth }} // tight but with a small minimum
-            onClick={(e) => e.stopPropagation()}
-        >
+        <div className="multi-select" style={{ minWidth }} ref={wrapperRef}>
             <button
                 type="button"
-                className="pill-select-trigger"
-                onClick={() => setOpen((o) => !o)}
+                className="filter-box-trigger"
+                onClick={handleTriggerClick}
             >
                 <span className={values.length ? "ms-label-selected" : "ms-label"}>
-                    {values.length ? values.join(", ") : label}
+                    {displayText}
                 </span>
-                <span className="ms-chevron">▾</span>
             </button>
 
             {open && (
@@ -77,14 +87,14 @@ function MultiSelectDropdown({ label, options, values, onChange, minWidth }) {
     );
 }
 
-// ───────────────────────────── Single-select pill dropdown ─────────────────────────────
+// Simple single-select used for Age Range and Date
 function SimpleDropdown({ label, value, onChange, options, minWidth }) {
     return (
         <select
-            className="pill-select simple-select"
-            value={value}
-            onChange={onChange}
+            className="filter-box-select"
             style={{ minWidth }}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
         >
             <option value="">{label}</option>
             {options.map((opt) => (
@@ -96,33 +106,30 @@ function SimpleDropdown({ label, value, onChange, options, minWidth }) {
     );
 }
 
-// ───────────────────────────── Filters bar ─────────────────────────────
-export default function FiltersBar({ filters, onChange, sortBy, setSortBy }) {
-    // Local keys for range dropdowns
+export default function FiltersBar({
+    filters,
+    onChange,
+    sortBy,
+    setSortBy,
+    onResetAll
+}) {
     const [ageKey, setAgeKey] = useState("");
     const [dateKey, setDateKey] = useState("");
 
-    // Age Range → minAge & maxAge
-    const handleAgeChange = (e) => {
-        const val = e.target.value;
+    const handleAgeChange = (val) => {
         setAgeKey(val);
-
         if (!val) {
             onChange("minAge", "");
             onChange("maxAge", "");
             return;
         }
-
         const [min, max] = val.split("-");
         onChange("minAge", min);
         onChange("maxAge", max);
     };
 
-    // Date → startDate & endDate
-    const handleDateChange = (e) => {
-        const val = e.target.value;
+    const handleDateChange = (val) => {
         setDateKey(val);
-
         if (!val) {
             onChange("startDate", "");
             onChange("endDate", "");
@@ -133,7 +140,8 @@ export default function FiltersBar({ filters, onChange, sortBy, setSortBy }) {
         const end = today.toISOString().slice(0, 10);
 
         let days = 0;
-        if (val === "last7") days = 7;
+        if (val === "today") days = 0;
+        else if (val === "last7") days = 7;
         else if (val === "last30") days = 30;
         else if (val === "last180") days = 180;
         else if (val === "last365") days = 365;
@@ -145,82 +153,105 @@ export default function FiltersBar({ filters, onChange, sortBy, setSortBy }) {
         onChange("endDate", end);
     };
 
+    const handleReset = () => {
+        setAgeKey("");
+        setDateKey("");
+
+        onChange("region", []);
+        onChange("gender", []);
+        onChange("category", []);
+        onChange("tags", []);
+        onChange("paymentMethod", []);
+        onChange("minAge", "");
+        onChange("maxAge", "");
+        onChange("startDate", "");
+        onChange("endDate", "");
+
+        if (onResetAll) onResetAll();
+    };
+
     return (
-        <div className="filters-bar">
-            {/* Customer Region – multi-select dropdown */}
-            <MultiSelectDropdown
-                label="Customer Region"
-                options={regions}
-                values={filters.region}
-                onChange={(vals) => onChange("region", vals)}
-                minWidth={135}
-            />
-
-            {/* Gender – multi-select dropdown */}
-            <MultiSelectDropdown
-                label="Gender"
-                options={genders}
-                values={filters.gender}
-                onChange={(vals) => onChange("gender", vals)}
-                minWidth={90}
-            />
-
-            {/* Age Range – range dropdown */}
-            <SimpleDropdown
-                label="Age Range"
-                value={ageKey}
-                onChange={handleAgeChange}
-                options={ageRangeOptions.slice(1)}
-                minWidth={110}
-            />
-
-            {/* Product Category – multi-select */}
-            <MultiSelectDropdown
-                label="Product Category"
-                options={categories}
-                values={filters.category}
-                onChange={(vals) => onChange("category", vals)}
-                minWidth={145}
-            />
-
-            {/* Tags – multi-select (short word box) */}
-            <MultiSelectDropdown
-                label="Tags"
-                options={tagOptions}
-                values={filters.tags}
-                onChange={(vals) => onChange("tags", vals)}
-                minWidth={80}
-            />
-
-            {/* Payment Method – multi-select */}
-            <MultiSelectDropdown
-                label="Payment Method"
-                options={payments}
-                values={filters.paymentMethod}
-                onChange={(vals) => onChange("paymentMethod", vals)}
-                minWidth={150}
-            />
-
-            {/* Date – range dropdown */}
-            <SimpleDropdown
-                label="Date"
-                value={dateKey}
-                onChange={handleDateChange}
-                options={dateOptions.slice(1)}
-                minWidth={90}
-            />
-
-            {/* Sort – last pill on the same line */}
-            <select
-                className="pill-select sort-select"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                style={{ minWidth: 215 }}
+        <div className="filters-row">
+            <button
+                type="button"
+                className="reset-icon-btn"
+                aria-label="Reset filters"
+                onClick={handleReset}
+                title="Reset all filters"
             >
-                <option value="name_asc">Sort by: Customer Name (A–Z)</option>
-                <option value="date_desc">Sort by: Date (Newest First)</option>
-                <option value="qty_desc">Sort by: Quantity</option>
-            </select>
+                ⟳
+            </button>
+
+            <div className="filters-bar-wrapper">
+                <div className="filters-bar">
+                    <MultiSelectDropdown
+                        label="Customer Region"
+                        options={REGION_OPTIONS}
+                        values={filters.region || []}
+                        onChange={(vals) => onChange("region", vals)}
+                        minWidth={150}
+                    />
+
+                    <MultiSelectDropdown
+                        label="Gender"
+                        options={GENDER_OPTIONS}
+                        values={filters.gender || []}
+                        onChange={(vals) => onChange("gender", vals)}
+                        minWidth={90}
+                    />
+
+                    <SimpleDropdown
+                        label="Age Range"
+                        value={ageKey}
+                        onChange={handleAgeChange}
+                        options={AGE_RANGE_OPTIONS}
+                        minWidth={115}
+                    />
+
+                    <MultiSelectDropdown
+                        label="Product Category"
+                        options={CATEGORY_OPTIONS}
+                        values={filters.category || []}
+                        onChange={(vals) => onChange("category", vals)}
+                        minWidth={155}
+                    />
+
+                    <MultiSelectDropdown
+                        label="Tags"
+                        options={TAG_OPTIONS}
+                        values={filters.tags || []}
+                        onChange={(vals) => onChange("tags", vals)}
+                        minWidth={80}
+                    />
+
+                    <MultiSelectDropdown
+                        label="Payment Method"
+                        options={PAYMENT_OPTIONS}
+                        values={filters.paymentMethod || []}
+                        onChange={(vals) => onChange("paymentMethod", vals)}
+                        minWidth={155}
+                    />
+
+                    <SimpleDropdown
+                        label="Date"
+                        value={dateKey}
+                        onChange={handleDateChange}
+                        options={DATE_OPTIONS}
+                        minWidth={95}
+                    />
+
+                    <select
+                        className="filter-box-select sort-select"
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        style={{ minWidth: 220 }}
+                    >
+                        <option value="name_asc">Sort by: Customer Name (A–Z)</option>
+                        <option value="date_desc">Sort by: Date (Newest First)</option>
+                        <option value="qty_desc">Sort by: Quantity</option>
+                    </select>
+                </div>
+            </div>
         </div>
     );
 }
