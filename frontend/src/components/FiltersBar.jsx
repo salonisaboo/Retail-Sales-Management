@@ -6,9 +6,9 @@ const categories = ["Clothing", "Electronics", "Beauty", "Accessories"];
 const payments = ["UPI", "Cash", "Debit Card", "Credit Card"];
 const tagOptions = ["fragrance", "gift", "skincare", "organic", "electronics"];
 
-// Age & Date dropdown presets
+// Age & Date dropdown presets (range based)
 const ageRangeOptions = [
-    { label: "Age Range", value: "" }, // placeholder
+    { label: "Age Range", value: "" },
     { label: "18 – 25", value: "18-25" },
     { label: "26 – 35", value: "26-35" },
     { label: "36 – 45", value: "36-45" },
@@ -17,15 +17,15 @@ const ageRangeOptions = [
 ];
 
 const dateOptions = [
-    { label: "Date", value: "" }, // placeholder
+    { label: "Date", value: "" },
     { label: "Last 7 days", value: "last7" },
     { label: "Last 30 days", value: "last30" },
     { label: "Last 6 months", value: "last180" },
     { label: "Last 1 year", value: "last365" }
 ];
 
-// Multi-select pill dropdown
-function MultiSelectDropdown({ label, options, values, onChange, width }) {
+// ───────────────────────────── Multi-select pill dropdown ─────────────────────────────
+function MultiSelectDropdown({ label, options, values, onChange, minWidth }) {
     const [open, setOpen] = useState(false);
 
     const toggleOption = (value) => {
@@ -45,12 +45,12 @@ function MultiSelectDropdown({ label, options, values, onChange, width }) {
     return (
         <div
             className="multi-select"
-            style={{ width }}
+            style={{ minWidth }} // tight but with a small minimum
             onClick={(e) => e.stopPropagation()}
         >
             <button
                 type="button"
-                className="multi-select-trigger"
+                className="pill-select-trigger"
                 onClick={() => setOpen((o) => !o)}
             >
                 <span className={values.length ? "ms-label-selected" : "ms-label"}>
@@ -77,14 +77,14 @@ function MultiSelectDropdown({ label, options, values, onChange, width }) {
     );
 }
 
-// Simple single-select pill dropdown (for Age Range & Date)
-function SimpleDropdown({ label, value, onChange, options, width }) {
+// ───────────────────────────── Single-select pill dropdown ─────────────────────────────
+function SimpleDropdown({ label, value, onChange, options, minWidth }) {
     return (
         <select
-            className="simple-select"
+            className="pill-select simple-select"
             value={value}
             onChange={onChange}
-            style={{ width }}
+            style={{ minWidth }}
         >
             <option value="">{label}</option>
             {options.map((opt) => (
@@ -96,11 +96,13 @@ function SimpleDropdown({ label, value, onChange, options, width }) {
     );
 }
 
+// ───────────────────────────── Filters bar ─────────────────────────────
 export default function FiltersBar({ filters, onChange, sortBy, setSortBy }) {
-    // Local selection keys for age & date, so App state stays simple
+    // Local keys for range dropdowns
     const [ageKey, setAgeKey] = useState("");
     const [dateKey, setDateKey] = useState("");
 
+    // Age Range → minAge & maxAge
     const handleAgeChange = (e) => {
         const val = e.target.value;
         setAgeKey(val);
@@ -110,11 +112,13 @@ export default function FiltersBar({ filters, onChange, sortBy, setSortBy }) {
             onChange("maxAge", "");
             return;
         }
+
         const [min, max] = val.split("-");
         onChange("minAge", min);
         onChange("maxAge", max);
     };
 
+    // Date → startDate & endDate
     const handleDateChange = (e) => {
         const val = e.target.value;
         setDateKey(val);
@@ -143,75 +147,75 @@ export default function FiltersBar({ filters, onChange, sortBy, setSortBy }) {
 
     return (
         <div className="filters-bar">
-            {/* Customer Region */}
+            {/* Customer Region – multi-select dropdown */}
             <MultiSelectDropdown
                 label="Customer Region"
                 options={regions}
                 values={filters.region}
                 onChange={(vals) => onChange("region", vals)}
-                width={145}
+                minWidth={135}
             />
 
-            {/* Gender */}
+            {/* Gender – multi-select dropdown */}
             <MultiSelectDropdown
                 label="Gender"
                 options={genders}
                 values={filters.gender}
                 onChange={(vals) => onChange("gender", vals)}
-                width={95}
+                minWidth={90}
             />
 
-            {/* Age Range dropdown */}
+            {/* Age Range – range dropdown */}
             <SimpleDropdown
                 label="Age Range"
                 value={ageKey}
                 onChange={handleAgeChange}
                 options={ageRangeOptions.slice(1)}
-                width={120}
+                minWidth={110}
             />
 
-            {/* Product Category */}
+            {/* Product Category – multi-select */}
             <MultiSelectDropdown
                 label="Product Category"
                 options={categories}
                 values={filters.category}
                 onChange={(vals) => onChange("category", vals)}
-                width={155}
+                minWidth={145}
             />
 
-            {/* Tags */}
+            {/* Tags – multi-select (short word box) */}
             <MultiSelectDropdown
                 label="Tags"
                 options={tagOptions}
                 values={filters.tags}
                 onChange={(vals) => onChange("tags", vals)}
-                width={85}
+                minWidth={80}
             />
 
-            {/* Payment Method */}
+            {/* Payment Method – multi-select */}
             <MultiSelectDropdown
                 label="Payment Method"
                 options={payments}
                 values={filters.paymentMethod}
                 onChange={(vals) => onChange("paymentMethod", vals)}
-                width={155}
+                minWidth={150}
             />
 
-            {/* Date dropdown */}
+            {/* Date – range dropdown */}
             <SimpleDropdown
                 label="Date"
                 value={dateKey}
                 onChange={handleDateChange}
                 options={dateOptions.slice(1)}
-                width={110}
+                minWidth={90}
             />
 
-            {/* Sort dropdown – same line */}
+            {/* Sort – last pill on the same line */}
             <select
-                className="sort-select"
+                className="pill-select sort-select"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                style={{ width: 215 }}
+                style={{ minWidth: 215 }}
             >
                 <option value="name_asc">Sort by: Customer Name (A–Z)</option>
                 <option value="date_desc">Sort by: Date (Newest First)</option>
