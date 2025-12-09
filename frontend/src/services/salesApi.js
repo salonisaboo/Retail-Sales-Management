@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:4000/api";
+const API_BASE = "http://localhost:5000/api";
 
 export async function fetchSales(params) {
   const res = await axios.get(`${API_BASE}/sales`, { params });

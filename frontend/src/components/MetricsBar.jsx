@@ -1,3 +1,4 @@
+// MetricsBar.jsx
 export default function MetricsBar({ metrics }) {
     const totalUnits = metrics?.totalUnits || 0;
     const totalAmount = metrics?.totalAmount || 0;
@@ -22,3 +23,4 @@ export default function MetricsBar({ metrics }) {
         </div>
     );
 }
+

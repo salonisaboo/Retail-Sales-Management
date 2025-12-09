@@ -6,6 +6,16 @@ import MetricsBar from "./components/MetricsBar";
 import TransactionsTable from "./components/TransactionsTable";
 import Pagination from "./components/Pagination";
 
+import {
+  FiGrid,
+  FiArchive,
+  FiCircle,
+  FiPauseCircle,
+  FiXCircle,
+  FiCheckCircle,
+  FiFile
+} from "react-icons/fi";
+
 function App() {
   const [search, setSearch] = useState("");
 
@@ -30,6 +40,7 @@ function App() {
     totalAmount: 0,
     totalDiscount: 0
   });
+
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
@@ -101,11 +112,10 @@ function App() {
 
   return (
     <div className="app-root">
-      {/* SIDEBAR */}
+      {/* ================= SIDEBAR ================= */}
       <aside className="sidebar">
         <div className="sidebar-header">
           <div className="sidebar-logo-wrap">
-            {/* logo.jpg must be in public/ */}
             <img src="/logo.jpg" alt="Vault logo" className="sidebar-logo-img" />
             <span className="sidebar-logo-text">Vault</span>
           </div>
@@ -114,52 +124,78 @@ function App() {
 
         <nav className="sidebar-nav">
           <div className="nav-section">DASHBOARD</div>
-          <button className="nav-item">Nexus</button>
-          <button className="nav-item">Intake</button>
+
+          <button className="nav-item">
+            <FiGrid />
+            <span>Nexus</span>
+          </button>
+
+          <button className="nav-item">
+            <FiArchive />
+            <span>Intake</span>
+          </button>
 
           <div className="nav-section">SERVICES</div>
+
           <button
-            className={`nav-item ${selectedService === "Pre-active" ? "active" : ""}`}
+            className={`nav-item ${selectedService === "Pre-active" ? "active" : ""
+              }`}
             onClick={() => setSelectedService("Pre-active")}
           >
-            Pre-active
+            <FiCircle />
+            <span>Pre-active</span>
           </button>
+
           <button
-            className={`nav-item ${selectedService === "Active" ? "active" : ""}`}
+            className={`nav-item ${selectedService === "Active" ? "active" : ""
+              }`}
             onClick={() => setSelectedService("Active")}
           >
-            Active
+            <FiPauseCircle />
+            <span>Active</span>
           </button>
+
           <button
-            className={`nav-item ${selectedService === "Blocked" ? "active" : ""}`}
+            className={`nav-item ${selectedService === "Blocked" ? "active" : ""
+              }`}
             onClick={() => setSelectedService("Blocked")}
           >
-            Blocked
+            <FiXCircle />
+            <span>Blocked</span>
           </button>
+
           <button
-            className={`nav-item ${selectedService === "Closed" ? "active" : ""}`}
+            className={`nav-item ${selectedService === "Closed" ? "active" : ""
+              }`}
             onClick={() => setSelectedService("Closed")}
           >
-            Closed
+            <FiCheckCircle />
+            <span>Closed</span>
           </button>
 
           <div className="nav-section">INVOICES</div>
+
           <button
-            className={`nav-item ${selectedInvoice === "Proforma Invoices" ? "active" : ""}`}
+            className={`nav-item ${selectedInvoice === "Proforma Invoices" ? "active" : ""
+              }`}
             onClick={() => setSelectedInvoice("Proforma Invoices")}
           >
-            Proforma Invoices
+            <FiFile />
+            <span>Proforma Invoices</span>
           </button>
+
           <button
-            className={`nav-item ${selectedInvoice === "Final Invoices" ? "active" : ""}`}
+            className={`nav-item ${selectedInvoice === "Final Invoices" ? "active" : ""
+              }`}
             onClick={() => setSelectedInvoice("Final Invoices")}
           >
-            Final Invoices
+            <FiFile />
+            <span>Final Invoices</span>
           </button>
         </nav>
       </aside>
 
-      {/* MAIN CONTENT */}
+      {/* ================= MAIN CONTENT ================= */}
       <main className="main-content">
         <h1 className="title-header">Sales Management System</h1>
 

@@ -51,11 +51,12 @@ function MultiSelectDropdown({ label, options, values = [], onChange, minWidth }
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const displayText = values.length > 0
-        ? values.length === 1
-            ? values[0]
-            : `${values[0]} +${values.length - 1}`
-        : label;
+    const displayText =
+        values.length > 0
+            ? values.length === 1
+                ? values[0]
+                : `${values[0]} +${values.length - 1}`
+            : label;
 
     return (
         <div className="multi-select" style={{ minWidth }} ref={wrapperRef}>
@@ -87,22 +88,50 @@ function MultiSelectDropdown({ label, options, values = [], onChange, minWidth }
     );
 }
 
-// Simple single-select used for Age Range and Date
-function SimpleDropdown({ label, value, onChange, options, minWidth }) {
+function SingleSelectDropdown({ label, value, onChange, options, minWidth }) {
+    const [open, setOpen] = useState(false);
+    const wrapperRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const selectedLabel = options.find(opt => opt.value === value)?.label || label;
+
     return (
-        <select
-            className="filter-box-select"
-            style={{ minWidth }}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-        >
-            <option value="">{label}</option>
-            {options.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                </option>
-            ))}
-        </select>
+        <div className="multi-select" style={{ minWidth }} ref={wrapperRef}>
+            <button
+                type="button"
+                className="filter-box-trigger"
+                onClick={() => setOpen(o => !o)}
+            >
+                <span className={value ? "ms-label-selected" : "ms-label"}>{selectedLabel}</span>
+            </button>
+            {open && (
+                <div className="multi-select-menu">
+                    <label className="multi-select-option" style={{ fontWeight: value ? 500 : 400 }}>
+                        <input type="radio" checked={!value} onChange={() => onChange("")} />
+                        <span>{label}</span>
+                    </label>
+                    {options.map(opt => (
+                        <label key={opt.value} className="multi-select-option">
+                            <input
+                                type="radio"
+                                checked={value === opt.value}
+                                onChange={() => onChange(opt.value)}
+                            />
+                            <span>{opt.label}</span>
+                        </label>
+                    ))}
+                </div>
+            )}
+        </div>
     );
 }
 
@@ -200,7 +229,7 @@ export default function FiltersBar({
                         minWidth={90}
                     />
 
-                    <SimpleDropdown
+                    <SingleSelectDropdown
                         label="Age Range"
                         value={ageKey}
                         onChange={handleAgeChange}
@@ -232,7 +261,7 @@ export default function FiltersBar({
                         minWidth={155}
                     />
 
-                    <SimpleDropdown
+                    <SingleSelectDropdown
                         label="Date"
                         value={dateKey}
                         onChange={handleDateChange}
@@ -240,16 +269,17 @@ export default function FiltersBar({
                         minWidth={95}
                     />
 
-                    <select
-                        className="filter-box-select sort-select"
+                    <SingleSelectDropdown
+                        label="Sort by: Customer Name (A–Z)"
                         value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                        style={{ minWidth: 220 }}
-                    >
-                        <option value="name_asc">Sort by: Customer Name (A–Z)</option>
-                        <option value="date_desc">Sort by: Date (Newest First)</option>
-                        <option value="qty_desc">Sort by: Quantity</option>
-                    </select>
+                        onChange={setSortBy}
+                        options={[
+                            { label: "Sort by: Customer Name (A–Z)", value: "name_asc" },
+                            { label: "Sort by: Date (Newest First)", value: "date_desc" },
+                            { label: "Sort by: Quantity", value: "qty_desc" }
+                        ]}
+                        minWidth={220}
+                    />
                 </div>
             </div>
         </div>

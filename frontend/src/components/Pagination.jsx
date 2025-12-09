@@ -1,18 +1,11 @@
-// Pagination.jsx
 export default function Pagination({ currentPage, totalPages, onPageChange }) {
     if (!totalPages || totalPages <= 1) return null;
 
     const pages = [];
     const maxPagesToShow = 6;
+    const visiblePages = Math.min(totalPages, maxPagesToShow);
 
-    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-
-    if (endPage - startPage < maxPagesToShow - 1) {
-        startPage = Math.max(1, endPage - maxPagesToShow + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
+    for (let i = 1; i <= visiblePages; i++) {
         pages.push(i);
     }
 
@@ -24,6 +17,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
             >
                 Prev
             </button>
+
             {pages.map((p) => (
                 <button
                     key={p}
@@ -33,6 +27,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
                     {p}
                 </button>
             ))}
+
             <button
                 onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
