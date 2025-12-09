@@ -6,8 +6,8 @@ A full-stack Retail Sales Management System built using the MERN Stack (MongoDB,
 
 ## Live Deployment
 
-Frontend: https://your-frontend-url.onrender.com  
-Backend API: https://your-backend-url.onrender.com  
+Frontend: https://retail-sales-management-gkwx.onrender.com
+Backend API: https://retail-sales-management-backend-0d88.onrender.com
 Database: MongoDB Atlas  
 
 (Replace URLs after final deployment)
