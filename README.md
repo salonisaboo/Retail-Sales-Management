@@ -14,31 +14,6 @@ Database: MongoDB Atlas
 
 ---
 
-## Project Structure
-
-root/
-├── backend/
-│   ├── src/
-│   │   ├── controllers/
-│   │   ├── routes/
-│   │   ├── models/
-│   │   ├── config/
-│   │   └── index.js
-│   ├── package.json
-│   └── README.md
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── services/
-│   │   ├── styles/
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   ├── package.json
-│   └── README.md
-│
-└── README.md
-
 ---
 
 ## Features Implemented
